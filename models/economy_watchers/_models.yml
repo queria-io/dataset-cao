@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: di
+    columns:
+      - name: adjustment
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [original, seasonally_adjusted]
+      - name: judgment
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [current, outlook, current_level]
+      - name: survey_month
+        data_tests: [not_null]
+      - name: region
+        data_tests: [not_null]
+      - name: field
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [合計, 家計動向関連, 企業動向関連, 雇用関連]
+      - name: di
+        data_tests: [not_null]
+  - name: comments
+    columns:
+      - name: judgment
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [current, outlook]
+      - name: region
+        data_tests: [not_null]
+      - name: field
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [家計動向関連, 企業動向関連, 雇用関連]
+      - name: mark
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [◎, ○, □, ▲, ×]
+      - name: comment
+        data_tests: [not_null]

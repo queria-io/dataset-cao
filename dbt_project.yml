@@ -1,0 +1,16 @@
+name: "cao"
+version: "1.0.0"
+
+profile: "cao"
+
+model-paths: ["models"]
+macro-paths: ["shared/macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  cao:
+    +database: cao
+    +materialized: table

@@ -1,0 +1,22 @@
+name: Sync
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+  schedule:
+    # 景気ウォッチャー調査は毎月 8 日前後に公表される。四半期別 GDP 速報と県民経済計算は、公表後の最初の回で取り込む。毎月 12 日 04:00 JST に取る
+    - cron: "0 19 11 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    uses: queria-io/dataset-shared/.github/workflows/sync.yml@main
+    with:
+      dataset_name: cao
+    secrets: inherit

@@ -1,0 +1,59 @@
+schema: pref_accounts
+name: observations
+title: 県民経済計算
+description: |-
+  内閣府の県民経済計算です。最新の公表の総括表と主要系列表を収録します。1 行が 1 表の 1 項目・1 地域・1 年度です。
+
+  - table_kind が summary の行は総括表で、県内総生産・県民所得・1 人当たり県民所得・総人口・県内就業者数など 11 の指標を 1 表ずつ持ちます。指標の名前は table_title にあり、item は NULL です
+  - table_kind が main_series の行は主要系列表で、経済活動別県内総生産（名目・実質）、県民所得、県内総生産（支出側、名目・実質）の 5 表を持ちます。item は「製造業 > 食料品」のように、統計表の見出しの階層を「 > 」でつないだものです。合計と内訳の行が並んでいるので、足し合わせると重複します
+  - 地域は都道府県（prefecture）のほか、全県計（national）、地域ブロック（block）、政令指定都市（designated_city）の行があります。政令指定都市は値を公表している市だけ値があります
+  - 実質は連鎖方式で、基準年は table_title に書かれています。連鎖方式のため、実質の内訳を足しても合計に一致しません
+  - 秘匿（x）や該当なし（-）の値は行がありません
+  - 県民経済計算は公表のたびに過去の年度まで遡って改定されます。release が収録した公表です
+sources:
+  - path: https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
+fields:
+  - name: release
+    title: 公表
+    description: 収録した公表の最新年度。例：2023年度
+  - name: table_kind
+    title: 表の種類
+    description: summary（総括表）・main_series（主要系列表）
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: table_number
+    title: 表番号
+    description: 総括表・主要系列表それぞれの中の番号
+  - name: table_title
+    title: 表題
+    description: 統計表の表題（括弧と数字は半角）。例：県内総生産(生産側、名目)※支出側も同じ、1人当たり県民所得、経済活動別県内総生産(名目)
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: item
+    title: 項目
+    description: 主要系列表の見出しの階層を「 > 」でつないだもの。総括表の行は NULL
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: item_level
+    title: 項目の階層
+    description: item の階層の深さ。1 が最上位。総括表の行は 0
+  - name: area_type
+    title: 地域の種類
+    description: prefecture（都道府県）・national（全県計）・block（地域ブロック）・designated_city（政令指定都市）
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: area_name
+    title: 地域名
+  - name: prefecture_code
+    title: 都道府県コード
+    description: 2 桁（JIS X 0401）。都道府県の行だけ
+    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
+  - name: city_code
+    title: 市区町村コード
+    description: 6 桁の全国地方公共団体コード。政令指定都市の行だけ
+    annotations: { queria: { semantic: { role: entity, name: city } } }
+  - name: fiscal_year
+    title: 年度
+  - name: value
+    title: 値
+    description: 単位は unit
+    annotations: { queria: { semantic: { role: measure } } }
+  - name: unit
+    title: 単位
+    description: 100万円・千円・人。デフレーターは NULL

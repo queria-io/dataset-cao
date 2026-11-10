@@ -1,0 +1,68 @@
+# この dataset.yml は fdl commit が読む（FDL の dataset.json を YAML で書いたもの）。
+# 表の説明は models/ の *.table.yml に書く。表と列の型・NULL・行数は fdl commit がカタログから埋める。
+name: cao
+title: 内閣府
+description: |-
+  内閣府が公開する経済統計です。四半期別 GDP 速報（sna）、県民経済計算（pref_accounts）、景気ウォッチャー調査（economy_watchers）を収録しています。
+
+  四半期別 GDP 速報は、国内総生産（支出側）と各需要項目の名目・実質の実額とデフレーターを、1994 年からの四半期・年度・暦年で持ちます。県民経済計算は、都道府県・政令指定都市の県内総生産（生産側・支出側）、県民所得、1 人当たり県民所得、就業者数などを年度で持ちます。景気ウォッチャー調査は、現状判断と先行き判断の DI を全国の分野・業種別と地域別に月次で持ち、景気判断理由集のコメントを 1 回答 1 行で持ちます。どれも毎月、最新の公表を取得します。
+
+  出典：内閣府 国民経済計算（GDP統計）、内閣府 景気ウォッチャー調査（https://www.esri.cao.go.jp/jp/sna/menu.html、https://www5.cao.go.jp/keizai3/watcher/watcher_menu.html）を加工して作成
+keywords:
+  - 内閣府
+  - 国民経済計算
+  - GDP
+  - 国内総生産
+  - 四半期別GDP速報
+  - QE
+  - 実質GDP
+  - 名目GDP
+  - デフレーター
+  - 民間最終消費支出
+  - 設備投資
+  - 県民経済計算
+  - 県内総生産
+  - 県民所得
+  - 1人当たり県民所得
+  - 経済活動別
+  - 景気ウォッチャー調査
+  - 景気ウォッチャー
+  - 街角景気
+  - DI
+  - 景気判断
+homepage: https://github.com/queria-io/dataset-cao
+language: ja
+
+licenses:
+  - JP-PDL-1.0
+
+sources:
+  - title: 内閣府 国民経済計算（GDP統計）
+    path: https://www.esri.cao.go.jp/jp/sna/menu.html
+  - title: 内閣府 四半期別GDP速報 統計表
+    path: https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html
+  - title: 内閣府 県民経済計算
+    path: https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
+  - title: 内閣府 景気ウォッチャー調査
+    path: https://www5.cao.go.jp/keizai3/watcher/watcher_menu.html
+
+contributors:
+  - title: 内閣府
+    path: https://www.cao.go.jp/
+    roles: [rightsHolder]
+
+spatial_coverage: [JP]
+update_frequency: monthly
+
+schemas:
+  - name: sna
+    title: 四半期別GDP速報
+  - name: pref_accounts
+    title: 県民経済計算
+  - name: economy_watchers
+    title: 景気ウォッチャー調査
+
+annotations:
+  queria:
+    themes: [economy]
+    cover: 📈

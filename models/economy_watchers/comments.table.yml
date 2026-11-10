@@ -1,0 +1,51 @@
+schema: economy_watchers
+name: comments
+title: 景気判断理由集
+description: |-
+  内閣府の景気ウォッチャー調査の（参考）景気判断理由集です。景気ウォッチャー（街角の小売店・飲食店・企業・職業紹介の担当者など）が景気の判断に添えたコメントを、1 行 1 回答で収録します。2010 年 1 月の調査から、毎月追加します（CSV が公開されている月）。
+
+  - judgment が current の行は現状判断、outlook の行は先行き判断のコメントです
+  - mark は景気の判断の記号（◎ 良くなっている、○ やや良くなっている、□ 変わらない、▲ やや悪くなっている、× 悪くなっている）で、assessment はその意味です
+  - region は回答者の地域、field は分野、industry は業種・職種（回答者の立場）です。reason は判断の理由（来客数の動き、受注量や販売量の動き など）で、現状判断だけにあります
+  - 判断理由集には、主だった回答と特徴的な回答だけが載っています。全回答ではありません
+primary_key: [survey_month, judgment, line_number]
+sources:
+  - path: https://www5.cao.go.jp/keizai3/watcher_index.html
+fields:
+  - name: survey_month
+    title: 調査月
+    description: 調査した月の 1 日
+  - name: release_date
+    title: 公表日
+  - name: judgment
+    title: 判断
+    description: current（現状判断）・outlook（先行き判断）
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: region
+    title: 地域
+    description: 北海道・東北・北関東・南関東・甲信越・東海・北陸・近畿・中国・四国・九州・沖縄
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: field
+    title: 分野
+    description: 家計動向関連・企業動向関連・雇用関連
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: mark
+    title: 判断の記号
+    description: ◎・○・□・▲・×
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: assessment
+    title: 判断
+    description: 良くなっている・やや良くなっている・変わらない・やや悪くなっている・悪くなっている
+    annotations: { queria: { semantic: { role: dimension } } }
+  - name: industry
+    title: 業種・職種
+    description: 例：百貨店（売場主任）、一般機械器具製造業（経営者）
+  - name: reason
+    title: 判断の理由
+    description: 来客数の動き・販売量の動き・受注量や販売量の動き など。先行き判断の行は NULL
+  - name: comment
+    title: コメント
+    description: 判断の理由の説明と具体的な状況
+  - name: line_number
+    title: 行番号
+    description: 公表された CSV の中の行番号。同じ月・同じ判断の中で一意

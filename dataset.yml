@@ -3,7 +3,7 @@
 name: cao
 title: 内閣府
 description: |-
-  内閣府が公開する経済統計です。四半期別 GDP 速報（sna）、県民経済計算（pref_accounts）、景気ウォッチャー調査（economy_watchers）を収録しています。
+  内閣府が公開する経済統計です。四半期別 GDP 速報（sna）、県民経済計算（pref_accounts）、景気ウォッチャー調査（economy_watchers）を収録しています。行政事業レビューのシートが関係する計画・通知等として挙げる内閣府のサイトの PDF も、ページごとの本文を持ちます。
 
   四半期別 GDP 速報は、国内総生産（支出側）と各需要項目の名目・実質の実額とデフレーターを、1994 年からの四半期・年度・暦年で持ちます。県民経済計算は、都道府県・政令指定都市の県内総生産（生産側・支出側）、県民所得、1 人当たり県民所得、就業者数などを年度で持ちます。景気ウォッチャー調査は、現状判断と先行き判断の DI を全国の分野・業種別と地域別に月次で持ち、景気判断理由集のコメントを 1 回答 1 行で持ちます。どれも毎月、最新の公表を取得します。
 
@@ -30,6 +30,8 @@ keywords:
   - 街角景気
   - DI
   - 景気判断
+  - 行政事業レビュー
+  - 計画・通知等
 homepage: https://github.com/queria-io/dataset-cao
 language: ja
 
@@ -37,6 +39,8 @@ licenses:
   - JP-PDL-1.0
 
 sources:
+  - title: 行政事業レビュー見える化サイト（行政改革推進本部事務局）
+    path: https://rssystem.go.jp
   - title: 内閣府 国民経済計算（GDP統計）
     path: https://www.esri.cao.go.jp/jp/sna/menu.html
   - title: 内閣府 四半期別GDP速報 統計表
@@ -55,6 +59,8 @@ spatial_coverage: [JP]
 update_frequency: monthly
 
 schemas:
+  - name: plans
+    title: 計画・通知等
   - name: sna
     title: 四半期別GDP速報
   - name: pref_accounts

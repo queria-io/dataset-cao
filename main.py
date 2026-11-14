@@ -10,6 +10,7 @@ import logging
 
 from dbt.cli.main import dbtRunner
 
+from pipelines import plans
 from pipelines.economy_watchers import download_economy_watchers
 from pipelines.pref_accounts import download_pref_accounts
 from pipelines.sna import download_sna
@@ -20,11 +21,11 @@ logger = logging.getLogger("pipelines")
 
 
 def download():
-    logger.info("1/4: sna (四半期別GDP速報)")
+    logger.info("1/5: sna (四半期別GDP速報)")
     download_sna()
-    logger.info("2/4: pref_accounts (県民経済計算)")
+    logger.info("2/5: pref_accounts (県民経済計算)")
     download_pref_accounts()
-    logger.info("3/4: economy_watchers (景気ウォッチャー調査)")
+    logger.info("3/5: economy_watchers (景気ウォッチャー調査)")
     download_economy_watchers()
 
 
@@ -37,7 +38,10 @@ def dbt_build():
 
 def main():
     download()
-    logger.info("4/4: dbt build")
+    logger.info("4/5: plans (行政事業レビューが挙げる計画・通知等)")
+    plans.download_plans()
+    plans.build_plans_parquet()
+    logger.info("5/5: dbt build")
     dbt_build()
 
 

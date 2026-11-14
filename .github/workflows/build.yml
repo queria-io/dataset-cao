@@ -20,4 +20,5 @@ jobs:
       - uses: astral-sh/setup-uv@v7
       - run: uv sync
       - run: uv run python -c "import main; main.download()"
+      - run: uv run python -c "from pipelines import plans; plans.download_plans(); plans.build_plans_parquet()"
       - run: uv run dbt build --profiles-dir ci

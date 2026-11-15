@@ -1,4 +1,4 @@
-{# 県民経済計算の総括表と主要系列表 (data/pref_accounts/observations.csv) を型付けする #}
+{# 県民経済計算の総括表と主要系列表を型付けする #}
 
 select
     release,
@@ -14,4 +14,4 @@ select
     cast(fiscal_year as integer) as fiscal_year,
     cast(value as double) as value,
     nullif(unit, '') as unit
-from read_csv('data/pref_accounts/observations.csv', header = true, delim = ',', quote = '"', escape = '"', all_varchar = true)
+from {{ ref('raw_observations') }}

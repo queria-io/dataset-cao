@@ -1,0 +1,32 @@
+schema: pref_accounts
+name: source_file
+title: 元のファイル
+description: |-
+  observations を作った元のファイル（県民経済計算の統計表（Excel））の一覧です。1 行が 1 つのファイルで、取得した URL・掲載ページ・取得日時と、ファイルの sha256 を持ちます。
+
+  - observations の source_sha256 がこのテーブルの sha256 を指します
+  - url は統計表の Excel、page_url はその年度の公表のページです
+  - ファイル本体は保存していません。url から取得できます
+primary_key: [url]
+sources:
+  - path: https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
+fields:
+  - name: url
+    title: ファイルの URL
+  - name: page_url
+    title: 掲載ページの URL
+  - name: sha256
+    title: ファイルの sha256
+  - name: bytes
+    title: バイト数
+  - name: media_type
+    title: メディアタイプ
+  - name: retrieved_at
+    title: 取得した日時
+    description: UTC
+  - name: etag
+    title: ETag
+    description: 取得したときの応答の ETag ヘッダー。無ければ NULL
+  - name: last_modified
+    title: Last-Modified
+    description: 取得したときの応答の Last-Modified ヘッダー。無ければ NULL

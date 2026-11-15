@@ -11,5 +11,6 @@ select
     industry,
     nullif(reason, '') as reason,
     comment,
-    cast(line_number as integer) as line_number
+    cast(line_number as integer) as line_number,
+    source_sha256
 from {{ ref('raw_comments') }}

@@ -1,0 +1,32 @@
+schema: sna
+name: source_file
+title: 元のファイル
+description: |-
+  gdp_expenditure を作った元のファイル（四半期別 GDP 速報の統計表（CSV））の一覧です。1 行が 1 つのファイルで、取得した URL・掲載ページ・取得日時と、ファイルの sha256 を持ちます。
+
+  - gdp_expenditure の source_sha256 がこのテーブルの sha256 を指します
+  - url は統計表の CSV、page_url はその速報の統計表一覧のページです
+  - ファイル本体は保存していません。url から取得できます
+primary_key: [url]
+sources:
+  - path: https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html
+fields:
+  - name: url
+    title: ファイルの URL
+  - name: page_url
+    title: 掲載ページの URL
+  - name: sha256
+    title: ファイルの sha256
+  - name: bytes
+    title: バイト数
+  - name: media_type
+    title: メディアタイプ
+  - name: retrieved_at
+    title: 取得した日時
+    description: UTC
+  - name: etag
+    title: ETag
+    description: 取得したときの応答の ETag ヘッダー。無ければ NULL
+  - name: last_modified
+    title: Last-Modified
+    description: 取得したときの応答の Last-Modified ヘッダー。無ければ NULL

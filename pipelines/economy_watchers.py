@@ -6,7 +6,8 @@
   CSV のある月のぶんを取る。
   公表後に変わらないので、取得済みの月は取り直さない
 
-出力: data/economy_watchers/di.csv、data/economy_watchers/comments.csv
+出力: data/economy_watchers/di.csv、data/economy_watchers/comments.csv、
+      data/economy_watchers/source_file.ndjson (取得したファイルの記録)
 
 データソース: 内閣府 景気ウォッチャー調査
 https://www5.cao.go.jp/keizai3/watcher/watcher_menu.html
@@ -18,21 +19,32 @@ import logging
 import re
 from datetime import date, datetime
 from pathlib import Path
+from urllib.error import HTTPError
 
 import openpyxl
 from openpyxl.utils.datetime import from_excel
-from shared.fetch import fetch, write_atomic
 
-from pipelines.tables import clean, header_paths, number, write_rows
+from pipelines.tables import (
+    clean,
+    fetch_source,
+    header_paths,
+    number,
+    read_records,
+    write_records,
+    write_rows,
+)
+from shared.fetch import fetch
 
 logger = logging.getLogger("pipelines")
 
 SITE = "https://www5.cao.go.jp/keizai3"
 USER_AGENT = "dataset-cao (+https://github.com/queria-io/dataset-cao)"
 OUTPUT = Path("data/economy_watchers")
-RAW = OUTPUT / "comments_raw"
+FILES_DIR = OUTPUT / "files"
+SOURCE_FILE = OUTPUT / "source_file.ndjson"
+MENU = f"{SITE}/watcher/watcher_menu.html"
 
-DI_FIELDS = ["adjustment", "judgment", "year", "month", "region", "field", "sector", "di"]
+DI_FIELDS = ["adjustment", "judgment", "year", "month", "region", "field", "sector", "di", "source_sha256", "source_sheet", "source_row"]
 COMMENT_FIELDS = [
     "survey_year",
     "survey_month",
@@ -46,6 +58,7 @@ COMMENT_FIELDS = [
     "reason",
     "comment",
     "line_number",
+    "source_sha256",
 ]
 # 景気判断の記号 → 5 段階の判断
 MARKS = {
@@ -91,18 +104,18 @@ def serial_month(value) -> tuple[int, int] | None:
     return None
 
 
-def blocks(rows: list[tuple], period_of) -> list[tuple[list[tuple], list[tuple[tuple[int, int], tuple]]]]:
-    """シートを (見出しの行, [(年月, データの行)]) の塊に分ける。データの行が続く間を 1 つの塊にする。"""
+def blocks(rows: list[tuple], period_of) -> list[tuple[list[tuple], list[tuple[tuple[int, int], tuple, int]]]]:
+    """シートを (見出しの行, [(年月, データの行, 行番号)]) の塊に分ける。データの行が続く間を 1 つの塊にする。"""
 
     def walk():
         header, data, year = [], [], None
-        for row in rows:
+        for line, row in enumerate(rows, 1):
             if not any(clean(cell) for cell in row):
                 continue
             found = period_of(row, year)
             if found:
                 year = found[0]
-                data.append((found, row))
+                data.append((found, row, line))
                 continue
             if data:
                 yield header, data
@@ -115,12 +128,12 @@ def blocks(rows: list[tuple], period_of) -> list[tuple[list[tuple], list[tuple[t
 
 
 def melt(header: list[tuple], data, first_column: int, base: dict, place) -> list[dict]:
-    width = max(len(row) for row in header + [row for _, row in data])
+    width = max(len(row) for row in header + [row for _, row, _ in data])
     paths = header_paths(header, range(first_column, width))
     title = " ".join(clean(c) or "" for row in header for c in row[:first_column])
     return [
-        {**base, "judgment": base.get("judgment") or judgment(title), "year": y, "month": m, **place(path), "di": value}
-        for (y, m), row in data
+        {**base, "judgment": base.get("judgment") or judgment(title), "year": y, "month": m, **place(path), "di": value, "source_row": line}
+        for (y, m), row, line in data
         for column, path in paths.items()
         if column < len(row) and (value := number(row[column])) is not None
     ]
@@ -139,20 +152,22 @@ def regional(row: dict) -> bool:
     return row["region"] != "全国"
 
 
-def workbook(name: str) -> openpyxl.Workbook:
-    body = fetch(f"{SITE}/watcher/{name}", user_agent=USER_AGENT)
-    return openpyxl.load_workbook(io.BytesIO(body), read_only=True, data_only=True)
+def workbook(name: str, previous: dict[str, dict], records: list[dict]) -> tuple[openpyxl.Workbook, str]:
+    """統計表を取得して開き、(ブック, ファイルの sha256) を返す。取得の記録を records に足す。"""
+    record = fetch_source(f"{SITE}/watcher/{name}", FILES_DIR / name, MENU, previous, user_agent=USER_AGENT)
+    records.append(record)
+    return openpyxl.load_workbook(FILES_DIR / name, read_only=True, data_only=True), record["sha256"]
 
 
-def di_rows() -> list[dict]:
-    seasonal = workbook("watcher5.xlsx")
-    sectors = workbook("watcher3.xlsx")
-    regions = workbook("watcher1.xlsx")
+def di_rows(previous: dict[str, dict], records: list[dict]) -> list[dict]:
+    seasonal, seasonal_sha256 = workbook("watcher5.xlsx", previous, records)
+    sectors, sectors_sha256 = workbook("watcher3.xlsx", previous, records)
+    regions, regions_sha256 = workbook("watcher1.xlsx", previous, records)
 
     def seasonal_sheet(name: str) -> list[dict]:
         rows = list(seasonal[name].iter_rows(values_only=True))
         place = by_region("合計") if "地域別" in name else by_field
-        base = {"adjustment": "seasonally_adjusted", "judgment": judgment(name)}
+        base = {"adjustment": "seasonally_adjusted", "judgment": judgment(name), "source_sha256": seasonal_sha256, "source_sheet": name}
         return [
             row
             for header, data in blocks(rows, lambda r, y: year_month(r[1], y, r[2]))
@@ -162,7 +177,7 @@ def di_rows() -> list[dict]:
 
     def sector_sheet(name: str) -> list[dict]:
         rows = list(sectors[name].iter_rows(values_only=True))
-        base = {"adjustment": "original", "judgment": judgment(name)}
+        base = {"adjustment": "original", "judgment": judgment(name), "source_sha256": sectors_sha256, "source_sheet": name}
         return [
             row
             for header, data in blocks(rows, lambda r, y: year_month(r[2], y, r[3]))
@@ -172,7 +187,7 @@ def di_rows() -> list[dict]:
     def region_sheet(name: str) -> list[dict]:
         rows = list(regions[name].iter_rows(values_only=True))
         field = "合計" if name == "合計" else f"{name}関連"
-        base = {"adjustment": "original", "judgment": None}
+        base = {"adjustment": "original", "judgment": None, "source_sha256": regions_sha256, "source_sheet": name}
         return [
             row
             for header, data in blocks(rows, lambda r, _: serial_month(r[0]))
@@ -229,11 +244,10 @@ def comments(text: str, base: dict) -> list[dict]:
     return list(walk())
 
 
-def comment_rows() -> list[dict]:
+def comment_rows(previous: dict[str, dict], records: list[dict]) -> list[dict]:
     # 新しい年は統計表一覧に、古い年は過去の資料に載る
     pages = [fetch(f"{SITE}/{page}", user_agent=USER_AGENT).decode("utf-8") for page in INDEXES]
     releases = sorted({match for page in pages for match in RELEASE.findall(page)})
-    RAW.mkdir(parents=True, exist_ok=True)
 
     def release(path: str, year: str, month: str, day: str) -> list[dict]:
         published = date(int(year), int(month), int(day))
@@ -246,15 +260,20 @@ def comment_rows() -> list[dict]:
         }
 
         def one(file: str, kind: str) -> list[dict]:
-            local = RAW / f"{survey:%Y%m}_{kind}.csv"
-            if not local.exists():
-                url = f"{SITE}/{path.rsplit('/', 1)[0]}/{file}"
-                body = fetch(url, user_agent=USER_AGENT, not_found_ok=True)
-                if body is None:
+            url = f"{SITE}/{path.rsplit('/', 1)[0]}/{file}"
+            local = FILES_DIR / "comments" / f"{survey:%Y%m}_{kind}.csv"
+            if local.exists() and url in previous:
+                record = previous[url]
+            else:
+                try:
+                    record = fetch_source(url, local, f"{SITE}/{path}", previous, user_agent=USER_AGENT)
+                except HTTPError as error:
+                    if error.code != 404:
+                        raise
                     logger.info("  判断理由集の CSV が無い: %s", url)
                     return []
-                write_atomic(local, decode(body).encode("utf-8"))
-            return comments(local.read_text(encoding="utf-8"), {**base, "judgment": kind})
+            records.append(record)
+            return comments(decode(local.read_bytes()), {**base, "judgment": kind, "source_sha256": record["sha256"]})
 
         return one("watcher4.csv", "current") + one("watcher5.csv", "outlook")
 
@@ -262,5 +281,8 @@ def comment_rows() -> list[dict]:
 
 
 def download_economy_watchers() -> None:
-    logger.info("  DI: %d 行", write_rows(OUTPUT / "di.csv", DI_FIELDS, di_rows()))
-    logger.info("  判断理由集: %d 行", write_rows(OUTPUT / "comments.csv", COMMENT_FIELDS, comment_rows()))
+    previous = read_records(SOURCE_FILE)
+    records: list[dict] = []
+    logger.info("  DI: %d 行", write_rows(OUTPUT / "di.csv", DI_FIELDS, di_rows(previous, records)))
+    logger.info("  判断理由集: %d 行", write_rows(OUTPUT / "comments.csv", COMMENT_FIELDS, comment_rows(previous, records)))
+    write_records(SOURCE_FILE, records)

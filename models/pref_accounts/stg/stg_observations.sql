@@ -13,5 +13,8 @@ select
     nullif(city_code, '') as city_code,
     cast(fiscal_year as integer) as fiscal_year,
     cast(value as double) as value,
-    nullif(unit, '') as unit
+    nullif(unit, '') as unit,
+    source_sha256,
+    source_sheet,
+    cast(source_row as integer) as source_row
 from {{ ref('raw_observations') }}

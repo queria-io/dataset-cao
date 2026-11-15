@@ -7,5 +7,8 @@ select
     region,
     field,
     nullif(sector, '') as sector,
-    cast(di as double) as di
+    cast(di as double) as di,
+    source_sha256,
+    source_sheet,
+    cast(source_row as integer) as source_row
 from {{ ref('raw_di') }}

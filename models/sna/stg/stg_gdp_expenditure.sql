@@ -16,5 +16,7 @@ select
     item,
     cast(item_level as integer) as item_level,
     cast(value as double) as value,
-    unit
+    unit,
+    source_sha256,
+    cast(source_row as integer) as source_row
 from {{ ref('raw_gdp_expenditure') }}

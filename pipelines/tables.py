@@ -6,10 +6,13 @@
 """
 
 import csv
+import json
 import re
 import unicodedata
 from collections.abc import Iterable, Sequence
 from pathlib import Path
+
+from shared.fetch import fetch_file, write_atomic
 
 SPACES = re.compile(r"\s+")
 
@@ -76,3 +79,20 @@ def write_rows(path: Path, fields: Sequence[str], rows: Iterable[dict]) -> int:
         raise SystemExit(f"{path}: 行が 1 つも取れなかった")
     partial.replace(path)
     return count
+
+
+def read_records(path: Path) -> dict[str, dict]:
+    """前回の取得の記録 (source_file.ndjson) を url ごとに返す。"""
+    lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    return {record["url"]: record for record in map(json.loads, lines)}
+
+
+def write_records(path: Path, records: Iterable[dict]) -> None:
+    """取得の記録を source_file.ndjson に書く。raw_<スキーマ>_source_file が読む。"""
+    write_atomic(path, "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records))
+
+
+def fetch_source(url: str, path: Path, page_url: str, previous: dict[str, dict], **options) -> dict:
+    """url を path に取得し (前回から変わっていなければ取得しない)、source_file の 1 行を返す。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return {**fetch_file(url, path, previous=previous.get(url), **options), "page_url": page_url}

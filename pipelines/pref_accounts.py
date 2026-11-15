@@ -3,21 +3,28 @@
 最新の公表の「総括表」と「主要系列表」を取る。県民経済計算は公表のたびに過去の年度まで
 遡って改定されるので、毎回最新の公表だけで作り直す。
 
-出力: data/pref_accounts/observations.csv
+出力: data/pref_accounts/observations.csv、data/pref_accounts/source_file.ndjson (取得したファイルの記録)
 
 データソース: 内閣府 経済社会総合研究所 県民経済計算
 https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
 """
 
-import io
 import logging
 import re
 from pathlib import Path
 
 import openpyxl
-from shared.fetch import fetch
 
-from pipelines.tables import clean, header_paths, number, write_rows
+from pipelines.tables import (
+    clean,
+    fetch_source,
+    header_paths,
+    number,
+    read_records,
+    write_records,
+    write_rows,
+)
+from shared.fetch import fetch
 
 logger = logging.getLogger("pipelines")
 
@@ -26,6 +33,8 @@ BASE = f"{SITE}/jp/sna/data/data_list/kenmin/files"
 INDEX = f"{BASE}/files_kenmin.html"
 USER_AGENT = "dataset-cao (+https://github.com/queria-io/dataset-cao)"
 OUTPUT = Path("data/pref_accounts/observations.csv")
+SOURCE_FILE = Path("data/pref_accounts/source_file.ndjson")
+FILES_DIR = Path("data/pref_accounts/files")
 
 RELEASE = re.compile(r'href="contents/main_(\d{4})\.html"')
 TABLE = re.compile(r'href="(tables/\d{4}/(soukatu|syuyo)(\d+)\.xlsx)"')
@@ -71,6 +80,9 @@ FIELDS = [
     "fiscal_year",
     "value",
     "unit",
+    "source_sha256",
+    "source_sheet",
+    "source_row",
 ]
 
 
@@ -123,6 +135,8 @@ def summary(book: openpyxl.Workbook, number_: int) -> list[dict]:
             "fiscal_year": year,
             "value": value,
             "unit": unit,
+            "source_sheet": "実数",
+            "source_row": index + 1,
         }
         for index, area in areas(rows).items()
         for column, year in years.items()
@@ -157,6 +171,8 @@ def main_series(book: openpyxl.Workbook, number_: int) -> list[dict]:
                 "fiscal_year": year,
                 "value": value,
                 "unit": unit,
+                "source_sheet": name,
+                "source_row": index + 1,
             }
             for index, area in found.items()
             for column, path in paths.items()
@@ -172,18 +188,25 @@ def download_pref_accounts() -> None:
     if not years:
         raise SystemExit("県民経済計算の公表ページが見つからない")
     latest = years[-1]
-    page = fetch(f"{BASE}/contents/main_{latest}.html", user_agent=USER_AGENT).decode("utf-8")
+    page_url = f"{BASE}/contents/main_{latest}.html"
+    page = fetch(page_url, user_agent=USER_AGENT).decode("utf-8")
     tables = TABLE.findall(page)
     if not tables:
         raise SystemExit(f"県民経済計算 {latest} 年度の統計表が見つからない")
     release = {"release": f"{latest}年度"}
     logger.info("  %s 年度 (%d 表)", latest, len(tables))
 
+    previous = read_records(SOURCE_FILE)
+    records = []
+
     def table(path: str, kind: str, number_: str) -> list[dict]:
-        body = fetch(f"{BASE}/contents/{path}", user_agent=USER_AGENT)
-        book = openpyxl.load_workbook(io.BytesIO(body), read_only=True, data_only=True)
+        local = FILES_DIR / f"{kind}{number_}.xlsx"
+        record = fetch_source(f"{BASE}/contents/{path}", local, page_url, previous, user_agent=USER_AGENT)
+        records.append(record)
+        book = openpyxl.load_workbook(local, read_only=True, data_only=True)
         parse = summary if kind == "soukatu" else main_series
-        return [{**release, **row} for row in parse(book, int(number_))]
+        return [{**release, **row, "source_sha256": record["sha256"]} for row in parse(book, int(number_))]
 
     rows = [row for path, kind, number_ in tables for row in table(path, kind, number_)]
     logger.info("  %d 行", write_rows(OUTPUT, FIELDS, rows))
+    write_records(SOURCE_FILE, records)

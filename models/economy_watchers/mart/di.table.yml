@@ -38,3 +38,12 @@ fields:
   - name: di
     title: DI
     annotations: { queria: { semantic: { role: measure } } }
+  - name: source_sha256
+    title: 元のファイル
+    description: 値を読んだファイルの sha256。source_file の sha256 を指す
+  - name: source_sheet
+    title: 元のシート
+    description: 値を読んだ Excel のシート名
+  - name: source_row
+    title: 元の行番号
+    description: 値を読んだ Excel の行番号（1 始まり）

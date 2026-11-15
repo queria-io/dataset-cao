@@ -53,3 +53,9 @@ fields:
   - name: unit
     title: 単位
     description: 名目は 10億円、実質は「2020暦年連鎖価格、10億円」、デフレーターは「2020暦年=100」のように、統計表に書かれた単位
+  - name: source_sha256
+    title: 元のファイル
+    description: 値を読んだファイルの sha256。source_file の sha256 を指す
+  - name: source_row
+    title: 元の行番号
+    description: 値を読んだ CSV の行番号（1 始まり）

@@ -1,0 +1,4 @@
+schema: sna
+name: raw_gdp_expenditure
+description: pipelines が書いた data/sna/gdp_expenditure.csv を、列と値を変えずに読んだもの
+annotations: { queria: { published: false } }

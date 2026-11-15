@@ -3,7 +3,7 @@
 最新の速報の「Ⅰ. 国内総生産（支出側）及び各需要項目」の実額 (名目・実質) とデフレーターを取る。
 季節調整系列は速報のたびに 1994 年まで遡って改定されるので、毎回最新の速報だけで作り直す。
 
-出力: data/sna/gdp_expenditure.csv
+出力: data/sna/gdp_expenditure.csv、data/sna/source_file.ndjson (取得したファイルの記録)
 
 データソース: 内閣府 経済社会総合研究所 四半期別GDP速報
 https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html
@@ -16,9 +16,16 @@ import re
 from datetime import date
 from pathlib import Path
 
+from pipelines.tables import (
+    clean,
+    fetch_source,
+    header_paths,
+    number,
+    read_records,
+    write_records,
+    write_rows,
+)
 from shared.fetch import fetch
-
-from pipelines.tables import clean, header_paths, number, write_rows
 
 logger = logging.getLogger("pipelines")
 
@@ -26,6 +33,8 @@ SITE = "https://www.esri.cao.go.jp"
 INDEX = f"{SITE}/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html"
 USER_AGENT = "dataset-cao (+https://github.com/queria-io/dataset-cao)"
 OUTPUT = Path("data/sna/gdp_expenditure.csv")
+SOURCE_FILE = Path("data/sna/source_file.ndjson")
+FILES_DIR = Path("data/sna/files")
 
 YEAR_PAGE = re.compile(r'href="(/jp/sna/data/data_list/sokuhou/files/(\d{4})/toukei_\2\.html)"')
 RELEASE = re.compile(r'href="(/jp/sna/data/data_list/sokuhou/files/\d{4}/(qe\d{3}(?:_2)?)/gdemenuja\.html)"')
@@ -61,6 +70,8 @@ FIELDS = [
     "item_level",
     "value",
     "unit",
+    "source_sha256",
+    "source_row",
 ]
 
 
@@ -91,7 +102,8 @@ def period(label: str, year: int | None) -> tuple[int, int | None] | None:
     return found, quarter
 
 
-def parse(text: str, measure: str, adjustment: str, frequency: str, release: dict) -> list[dict]:
+def parse(text: str, measure: str, adjustment: str, frequency: str, release: dict, sha256: str) -> list[dict]:
+    """1 つの統計表を縦持ちにする。各行に元のファイルの sha256 と CSV の行番号を付ける。"""
     rows = list(csv.reader(io.StringIO(text)))
     unit = next(
         (m.group(1) for cell in rows[0] if (m := UNIT.search(clean(cell) or ""))),
@@ -105,7 +117,7 @@ def parse(text: str, measure: str, adjustment: str, frequency: str, release: dic
 
     def records():
         year = None
-        for row in rows[first:]:
+        for line, row in enumerate(rows[first:], first + 1):
             found = period(row[0], year) if row else None
             if not found:
                 continue
@@ -124,6 +136,8 @@ def parse(text: str, measure: str, adjustment: str, frequency: str, release: dic
                         "item_level": len(path),
                         "value": value,
                         "unit": unit,
+                        "source_sha256": sha256,
+                        "source_row": line,
                     }
 
     return list(records())
@@ -149,9 +163,13 @@ def download_sna() -> None:
         raise SystemExit(f"統計表が見つからない: {sorted(missing)}")
     base = menu_url.rsplit("/", 1)[0]
 
+    previous = read_records(SOURCE_FILE)
+    records = {prefix: fetch_source(f"{base}/{files[prefix]}", FILES_DIR / f"{prefix}.csv", menu_url, previous, user_agent=USER_AGENT) for prefix in FILES}
+
     def table(prefix: str) -> list[dict]:
-        text = fetch(f"{base}/{files[prefix]}", user_agent=USER_AGENT).decode("cp932")
-        return parse(text, *FILES[prefix], release)
+        text = (FILES_DIR / f"{prefix}.csv").read_bytes().decode("cp932")
+        return parse(text, *FILES[prefix], release, records[prefix]["sha256"])
 
     rows = [row for prefix in FILES for row in table(prefix)]
     logger.info("  %d 行", write_rows(OUTPUT, FIELDS, rows))
+    write_records(SOURCE_FILE, records.values())

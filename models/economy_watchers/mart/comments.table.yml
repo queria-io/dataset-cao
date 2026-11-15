@@ -49,3 +49,6 @@ fields:
   - name: line_number
     title: 行番号
     description: 公表された CSV の中の行番号。同じ月・同じ判断の中で一意
+  - name: source_sha256
+    title: 元のファイル
+    description: 回答を読んだ CSVの sha256。source_file の sha256 を指す

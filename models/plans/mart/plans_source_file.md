@@ -1,5 +1,6 @@
-schema: plans
-name: source_file
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: plans.source_file
 title: 計画・通知等の PDF の元のファイル
 description: |-
   plans.documents・plans.pages を作った PDF の一覧です。1 行が取得した URL とファイルの 1 組で、取得日時、応答の ETag・Last-Modified と、ファイルの sha256 を持ちます。
@@ -31,3 +32,4 @@ fields:
   - name: last_modified
     title: Last-Modified
     description: 取得したときの応答の Last-Modified ヘッダー。無ければ NULL
+---

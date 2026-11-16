@@ -1,5 +1,6 @@
-schema: economy_watchers
-name: source_file
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: economy_watchers.source_file
 title: 元のファイル
 description: |-
   di・comments を作った元のファイル（景気ウォッチャー調査の DI の統計表（Excel）と景気判断理由集（CSV））の一覧です。1 行が 1 つのファイルで、取得した URL・掲載ページ・取得日時と、ファイルの sha256 を持ちます。
@@ -30,3 +31,4 @@ fields:
   - name: last_modified
     title: Last-Modified
     description: 取得したときの応答の Last-Modified ヘッダー。無ければ NULL
+---

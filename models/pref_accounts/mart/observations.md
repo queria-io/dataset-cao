@@ -1,5 +1,6 @@
-schema: pref_accounts
-name: observations
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: pref_accounts.observations
 title: 県民経済計算
 description: |-
   内閣府の県民経済計算です。最新の公表の総括表と主要系列表を収録します。1 行が 1 表の 1 項目・1 地域・1 年度です。
@@ -19,41 +20,41 @@ fields:
   - name: table_kind
     title: 表の種類
     description: summary（総括表）・main_series（主要系列表）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: table_number
     title: 表番号
     description: 総括表・主要系列表それぞれの中の番号
   - name: table_title
     title: 表題
     description: 統計表の表題（括弧と数字は半角）。例：県内総生産(生産側、名目)※支出側も同じ、1人当たり県民所得、経済活動別県内総生産(名目)
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: item
     title: 項目
     description: 主要系列表の見出しの階層を「 > 」でつないだもの。総括表の行は NULL
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: item_level
     title: 項目の階層
     description: item の階層の深さ。1 が最上位。総括表の行は 0
   - name: area_type
     title: 地域の種類
     description: prefecture（都道府県）・national（全県計）・block（地域ブロック）・designated_city（政令指定都市）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: area_name
     title: 地域名
   - name: prefecture_code
     title: 都道府県コード
     description: 2 桁（JIS X 0401）。都道府県の行だけ
-    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
+    semantic: {role: entity, name: prefecture}
   - name: city_code
     title: 市区町村コード
     description: 6 桁の全国地方公共団体コード。政令指定都市の行だけ
-    annotations: { queria: { semantic: { role: entity, name: city } } }
+    semantic: {role: entity, name: city}
   - name: fiscal_year
     title: 年度
   - name: value
     title: 値
     description: 単位は unit
-    annotations: { queria: { semantic: { role: measure } } }
+    semantic: {role: measure}
   - name: unit
     title: 単位
     description: 100万円・千円・人。デフレーターは NULL
@@ -66,3 +67,4 @@ fields:
   - name: source_row
     title: 元の行番号
     description: 値を読んだ Excel の行番号（1 始まり）
+---

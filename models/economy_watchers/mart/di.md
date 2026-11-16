@@ -1,5 +1,6 @@
-schema: economy_watchers
-name: di
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: economy_watchers.di
 title: 景気ウォッチャー調査 DI
 description: |-
   内閣府の景気ウォッチャー調査の DI（景気の現状判断・先行き判断）の推移です。1 行が 1 系列の 1 か月です。
@@ -15,29 +16,29 @@ fields:
   - name: adjustment
     title: 季節調整
     description: seasonally_adjusted（季節調整値）・original（原数値）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: judgment
     title: 判断
     description: current（現状判断・方向性）・outlook（先行き判断・方向性）・current_level（現状判断・水準）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: survey_month
     title: 調査月
     description: 調査した月の 1 日。公表は翌月
   - name: region
     title: 地域
     description: 全国・北海道・東北・北関東・南関東・東京都・甲信越・東海・北陸・近畿・中国・四国・九州・沖縄など。関東は北関東と南関東を、南関東は東京都を含みます
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: field
     title: 分野
     description: 合計・家計動向関連・企業動向関連・雇用関連
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: sector
     title: 業種
     description: 小売関連・飲食関連・百貨店・製造業など。小売関連と、その中の百貨店などの行が並びます。分野全体の行は NULL
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: di
     title: DI
-    annotations: { queria: { semantic: { role: measure } } }
+    semantic: {role: measure}
   - name: source_sha256
     title: 元のファイル
     description: 値を読んだファイルの sha256。source_file の sha256 を指す
@@ -47,3 +48,4 @@ fields:
   - name: source_row
     title: 元の行番号
     description: 値を読んだ Excel の行番号（1 始まり）
+---

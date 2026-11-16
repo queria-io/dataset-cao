@@ -1,5 +1,6 @@
-schema: economy_watchers
-name: comments
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: economy_watchers.comments
 title: 景気判断理由集
 description: |-
   内閣府の景気ウォッチャー調査の（参考）景気判断理由集です。景気ウォッチャー（街角の小売店・飲食店・企業・職業紹介の担当者など）が景気の判断に添えたコメントを、1 行 1 回答で収録します。2010 年 1 月の調査から、毎月追加します（CSV が公開されている月）。
@@ -20,23 +21,23 @@ fields:
   - name: judgment
     title: 判断
     description: current（現状判断）・outlook（先行き判断）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: region
     title: 地域
     description: 北海道・東北・北関東・南関東・甲信越・東海・北陸・近畿・中国・四国・九州・沖縄
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: field
     title: 分野
     description: 家計動向関連・企業動向関連・雇用関連
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: mark
     title: 判断の記号
     description: ◎・○・□・▲・×
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: assessment
     title: 判断
     description: 良くなっている・やや良くなっている・変わらない・やや悪くなっている・悪くなっている
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: industry
     title: 業種・職種
     description: 例：百貨店（売場主任）、一般機械器具製造業（経営者）
@@ -52,3 +53,4 @@ fields:
   - name: source_sha256
     title: 元のファイル
     description: 回答を読んだ CSVの sha256。source_file の sha256 を指す
+---

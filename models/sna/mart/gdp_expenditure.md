@@ -1,5 +1,6 @@
-schema: sna
-name: gdp_expenditure
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: sna.gdp_expenditure
 title: 国内総生産（支出側）と各需要項目
 description: |-
   内閣府の四半期別 GDP 速報の、国内総生産（支出側）と各需要項目です。最新の速報の名目・実質の実額とデフレーターを、四半期・年度・暦年で収録します。1 行が 1 項目の 1 期です。
@@ -21,15 +22,15 @@ fields:
   - name: measure
     title: 系列
     description: nominal（名目）・real（実質）・deflator（デフレーター）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: adjustment
     title: 季節調整
     description: original（原系列）・seasonally_adjusted（季節調整系列）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: frequency
     title: 周期
     description: quarter（四半期）・fiscal_year（年度、4 月から翌年 3 月）・calendar_year（暦年）
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: year
     title: 年
     description: 四半期と暦年は暦年、年度は年度の始まる年
@@ -42,14 +43,14 @@ fields:
   - name: item
     title: 項目
     description: 統計表の見出しの階層を「 > 」でつないだもの。例：国内総生産(支出側)、民間最終消費支出 > 家計最終消費支出、財貨・サービス > 輸出
-    annotations: { queria: { semantic: { role: dimension } } }
+    semantic: {role: dimension}
   - name: item_level
     title: 項目の階層
     description: item の階層の深さ。1 が最上位
   - name: value
     title: 値
     description: 単位は unit
-    annotations: { queria: { semantic: { role: measure } } }
+    semantic: {role: measure}
   - name: unit
     title: 単位
     description: 名目は 10億円、実質は「2020暦年連鎖価格、10億円」、デフレーターは「2020暦年=100」のように、統計表に書かれた単位
@@ -59,3 +60,4 @@ fields:
   - name: source_row
     title: 元の行番号
     description: 値を読んだ CSV の行番号（1 始まり）
+---

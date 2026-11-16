@@ -1,4 +1,6 @@
-schema: sna
-name: raw_gdp_expenditure
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: sna.raw_gdp_expenditure
 description: pipelines が書いた data/sna/gdp_expenditure.csv を、列と値を変えずに読んだもの
-annotations: { queria: { published: false } }
+published: false
+---

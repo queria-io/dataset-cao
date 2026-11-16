@@ -1,5 +1,6 @@
-schema: plans
-name: documents
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: plans.documents
 title: 行政事業レビューが挙げる計画・通知等の PDF
 description: |-
   行政事業レビューのシートが「関係する計画・通知等」に挙げる URL のうち、内閣府のサイト（www.cao.go.jp・www5.cao.go.jp・www8.cao.go.jp）の PDF の一覧です。1 行が 1 つの URL で、2024 年度のシートから収録しています。
@@ -26,3 +27,4 @@ fields:
     title: ページ数
   - name: fetched_at
     title: 取得日時
+---

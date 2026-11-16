@@ -1,5 +1,6 @@
-schema: plans
-name: pages
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: plans.pages
 title: 計画・通知等の PDF のページ
 description: |-
   plans.documents の PDF の本文をページごとに取り出したテーブルです。1 行が 1 つの PDF の 1 ページです。
@@ -25,3 +26,4 @@ fields:
     title: 本文
   - name: cid_repaired_chars
     title: CID から戻した文字数
+---

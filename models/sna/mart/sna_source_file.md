@@ -1,15 +1,16 @@
-schema: pref_accounts
-name: source_file
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: sna.source_file
 title: 元のファイル
 description: |-
-  observations を作った元のファイル（県民経済計算の統計表（Excel））の一覧です。1 行が 1 つのファイルで、取得した URL・掲載ページ・取得日時と、ファイルの sha256 を持ちます。
+  gdp_expenditure を作った元のファイル（四半期別 GDP 速報の統計表（CSV））の一覧です。1 行が 1 つのファイルで、取得した URL・掲載ページ・取得日時と、ファイルの sha256 を持ちます。
 
-  - observations の source_sha256 がこのテーブルの sha256 を指します
-  - url は統計表の Excel、page_url はその年度の公表のページです
+  - gdp_expenditure の source_sha256 がこのテーブルの sha256 を指します
+  - url は統計表の CSV、page_url はその速報の統計表一覧のページです
   - ファイル本体は保存していません。url から取得できます
 primary_key: [url]
 sources:
-  - path: https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
+  - path: https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html
 fields:
   - name: url
     title: ファイルの URL
@@ -30,3 +31,4 @@ fields:
   - name: last_modified
     title: Last-Modified
     description: 取得したときの応答の Last-Modified ヘッダー。無ければ NULL
+---

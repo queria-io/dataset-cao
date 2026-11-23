@@ -41,11 +41,11 @@ columns:
   - name: prefecture_code
     title: 都道府県コード
     description: 2 桁（JIS X 0401）。都道府県の行だけ
-    entity: {type: foreign, name: prefecture}
+    entity: prefecture
   - name: city_code
     title: 市区町村コード
     description: 6 桁の全国地方公共団体コード。政令指定都市の行だけ
-    entity: {type: foreign, name: city}
+    entity: city
   - name: fiscal_year
     title: 年度
   - name: value

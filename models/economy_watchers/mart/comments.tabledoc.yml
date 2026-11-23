@@ -10,7 +10,7 @@ description: |-
 primary_key: [survey_month, judgment, line_number]
 sources:
   - id: watcher_index
-    path: https://www5.cao.go.jp/keizai3/watcher_index.html
+    url: https://www5.cao.go.jp/keizai3/watcher_index.html
 columns:
   - name: survey_month
     title: 調査月

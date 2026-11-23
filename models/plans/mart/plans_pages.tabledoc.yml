@@ -1,6 +1,4 @@
----
-$schema: https://queria.io/schemas/table/v1.json
-table: plans.pages
+$schema: https://tabledoc.queria.io/schemas/table/v1.json
 title: 計画・通知等の PDF のページ
 description: |-
   plans.documents の PDF の本文をページごとに取り出したテーブルです。1 行が 1 つの PDF の 1 ページです。
@@ -10,9 +8,8 @@ description: |-
   - スキャンした画像だけの PDF は text が空です
   - page は PDF の 1 始まりのページ番号です。印刷されたページ番号は page_label にあります（PDF に付いているときだけ）
 primary_key: [sha256, page]
-sources:
-  - path: https://rssystem.go.jp
-fields:
+sources: [rssystem]
+columns:
   - name: sha256
     title: PDF の sha256
     description: plans.documents の sha256
@@ -26,4 +23,3 @@ fields:
     title: 本文
   - name: cid_repaired_chars
     title: CID から戻した文字数
----

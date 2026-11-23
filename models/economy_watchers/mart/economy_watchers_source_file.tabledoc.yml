@@ -1,6 +1,4 @@
----
-$schema: https://queria.io/schemas/table/v1.json
-table: economy_watchers.source_file
+$schema: https://tabledoc.queria.io/schemas/table/v1.json
 title: 元のファイル
 description: |-
   di・comments を作った元のファイル（景気ウォッチャー調査の DI の統計表（Excel）と景気判断理由集（CSV））の一覧です。1 行が 1 つのファイルで、取得した URL・掲載ページ・取得日時と、ファイルの sha256 を持ちます。
@@ -9,9 +7,8 @@ description: |-
   - DI の統計表の page_url は景気ウォッチャー調査のページ、景気判断理由集の page_url はその月の公表資料のページです
   - ファイル本体は保存していません。url から取得できます
 primary_key: [url]
-sources:
-  - path: https://www5.cao.go.jp/keizai3/watcher/watcher_menu.html
-fields:
+sources: [watcher_menu]
+columns:
   - name: url
     title: ファイルの URL
   - name: page_url
@@ -31,4 +28,3 @@ fields:
   - name: last_modified
     title: Last-Modified
     description: 取得したときの応答の Last-Modified ヘッダー。無ければ NULL
----

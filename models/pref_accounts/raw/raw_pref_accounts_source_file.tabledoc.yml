@@ -1,3 +1,3 @@
 $schema: https://tabledoc.queria.io/schemas/table/v1.json
 description: 県民経済計算の統計表（Excel）を取得した記録を、pipelines が書いたまま読んだもの
-listed: false
+hidden: true

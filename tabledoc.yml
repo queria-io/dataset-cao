@@ -40,24 +40,24 @@ licenses:
 sources:
   - id: rssystem
     title: 行政事業レビュー見える化サイト（行政改革推進本部事務局）
-    path: https://rssystem.go.jp
+    url: https://rssystem.go.jp
   - id: menu
     title: 内閣府 国民経済計算（GDP統計）
-    path: https://www.esri.cao.go.jp/jp/sna/menu.html
+    url: https://www.esri.cao.go.jp/jp/sna/menu.html
   - id: files_sokuhou
     title: 内閣府 四半期別GDP速報 統計表
-    path: https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html
+    url: https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/files_sokuhou.html
   - id: files_kenmin
     title: 内閣府 県民経済計算
-    path: https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
+    url: https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/files_kenmin.html
   - id: watcher_menu
     title: 内閣府 景気ウォッチャー調査
-    path: https://www5.cao.go.jp/keizai3/watcher/watcher_menu.html
+    url: https://www5.cao.go.jp/keizai3/watcher/watcher_menu.html
 
 contributors:
   - id: cao
     title: 内閣府
-    path: https://www.cao.go.jp/
+    url: https://www.cao.go.jp/
     roles: [rightsHolder]
 
 spatial_coverage: [JP]

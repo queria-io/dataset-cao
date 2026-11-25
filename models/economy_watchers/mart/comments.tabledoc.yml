@@ -40,9 +40,11 @@ columns:
   - name: industry
     title: 業種・職種
     description: 例：百貨店（売場主任）、一般機械器具製造業（経営者）
+    dimension: categorical
   - name: reason
     title: 判断の理由
     description: 来客数の動き・販売量の動き・受注量や販売量の動き など。先行き判断の行は NULL
+    dimension: categorical
   - name: comment
     title: コメント
     description: 判断の理由の説明と具体的な状況

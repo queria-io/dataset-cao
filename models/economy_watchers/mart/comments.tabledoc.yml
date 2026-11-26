@@ -24,7 +24,6 @@ columns:
   - name: region
     title: 地域
     description: 北海道・東北・北関東・南関東・甲信越・東海・北陸・近畿・中国・四国・九州・沖縄
-    dimension: categorical
   - name: field
     title: 分野
     description: 家計動向関連・企業動向関連・雇用関連
